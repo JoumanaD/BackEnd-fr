@@ -71,3 +71,65 @@ class Accueilservice(models.Model):
 
     def __str__(self):
         return f"Service D'accueil : {self.adresse_Acc} pour Etablissement no : {self.etab_Acc}"
+
+class Date(models.Model):
+    date_id =  models.AutoField(primary_key=True)
+    date_debut = models.DateField()
+    date_fin = models.DateField()
+    tempsPlein = models.BooleanField()
+    interuption = models.BooleanField()
+    date_interuption_debut = models.DateField(null=True)
+    date_interuption_fin = models.DateField(null=True)
+
+    def __str__(self):
+        return f"Date ID  : {self.date_id}"
+
+class Gratification(models.Model):
+    gratif_id = models.AutoField(primary_key=True)
+    montant = models.IntegerField()
+    vers_CHOICES = (
+    ('Chéque', 'Chéque'),
+    ('Virement Bancaire', 'Virement Bancaire'),
+    ('Espèce', 'Espèce'))
+    versement = models.CharField(max_length=30, choices = vers_CHOICES)
+    avantage = models.TextField()
+
+    def __str__(self):
+        return f"Gratification  : {self.montant}, type de versement : {self.versement}"
+
+class Stage(models.Model):
+    stage_id = models.AutoField(primary_key=True)
+    titre = models.CharField(max_length=64)
+    nbHeure = models.IntegerField()
+    gratification = models.BooleanField()
+    gratification_detail = models.OneToOneField(Gratification, on_delete=models.CASCADE, related_name="gratification_stage")
+    confidentialite = models.BooleanField()
+    date = models.OneToOneField(Date, on_delete=models.CASCADE, related_name="date_stage")
+    description = models.TextField()
+    objectifs = models.TextField()
+    taches = models.TextField()
+    detail = models.TextField()
+    IDetudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name="stage_etudiant")
+
+    def __str__(self):
+        return f"Stage  : {self.titre} du {self.IDetudiant}"
+
+class Tuteurs(models.Model):
+    tuteur_id = models.AutoField(primary_key=True)
+    nom = models.CharField(max_length=64)
+    prenom = models.CharField(max_length=64)
+    numTeleph = models.IntegerField()
+    email = models.EmailField()
+    fonction = models.CharField(max_length=64)
+    service = models.CharField(max_length=64)
+    dispo_CHOICES = (
+    ('Importante', 'Importante'),
+    ('Partielle', 'Partielle'),
+    ('Inexistante', 'Inexistante'))
+    disponibilite = models.CharField(max_length=30, choices = dispo_CHOICES)
+    adresse_Tuteur =  models.ForeignKey(Adresse, on_delete=models.CASCADE, related_name="adresse_Tuteur")
+    stage = models.OneToOneField(Stage, on_delete=models.CASCADE, related_name="stage")
+    etab = models.OneToOneField(Etablissement, on_delete=models.CASCADE, related_name="etab_Tuteur")
+
+    def __str__(self):
+        return f"Tuteur  : {self.nom} {self.prenom} pour stage {self.stage}"
