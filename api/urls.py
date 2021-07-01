@@ -21,5 +21,13 @@ urlpatterns = [
     url(r'^rhservice/$', views.rhservice_list),
     url(r'^rhservice/(?P<pk>[0-9]+)$', views.rhservice_detail),
     url(r'^accueilservice/$', views.accueilservice_list),
-    url(r'^accueilservice/(?P<pk>[0-9]+)$', views.accueilservice_detail)
+    url(r'^accueilservice/(?P<pk>[0-9]+)$', views.accueilservice_detail),
+    url(r'^date/$', views.date_list),
+    url(r'^date/(?P<pk>[0-9]+)$', views.date_detail),
+    url(r'^gratification/$', views.gratification_list),
+    url(r'^gratification/(?P<pk>[0-9]+)$', views.gratification_detail),
+    url(r'^stage/$', views.stage_list),
+    url(r'^stage/(?P<pk>[0-9]+)$', views.stage_detail),
+    url(r'^tuteur/$', views.tuteur_list),
+    url(r'^tuteur/(?P<pk>[0-9]+)$', views.tuteur_detail)
 ]

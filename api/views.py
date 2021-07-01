@@ -4,8 +4,8 @@ from django.http.response import JsonResponse
 from rest_framework.parsers import JSONParser 
 from rest_framework import status
  
-from .models import Adresse, Etudiant, Fiche, Etablissement, Accueilservice, RHservice
-from .serializers import AdresseSerializer, EtudiantSerializer, FicheSerializer, EtablissementSerializer, AccueilserviceSerializer, RHserviceSerializer
+from .models import Adresse, Date, Etudiant, Fiche, Etablissement, Accueilservice, Gratification, RHservice, Stage, Tuteur
+from .serializers import AdresseSerializer, DateSerializer, EtudiantSerializer, FicheSerializer, EtablissementSerializer, AccueilserviceSerializer, GratificationSerializer, RHserviceSerializer, StageSerializer, TuteurSerializer
 from rest_framework.decorators import api_view
 
 #GET list of Etudiants, POST new Etudiant, DELETE all Etudiants
@@ -282,3 +282,188 @@ def accueilservice_detail(request, pk):
     elif request.method == 'DELETE': 
         accueilservice.delete() 
         return JsonResponse({'message': 'accueilservice was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
+#FICHES
+@api_view(['GET', 'POST'])
+def date_list(request):
+    if request.method == 'GET':
+        date = Date.objects.all()
+        
+        title = request.query_params.get('title', None)
+        if title is not None:
+            date = date.filter(title__icontains=title)
+        
+        date_serializer = DateSerializer(date, many=True)
+        return JsonResponse(date_serializer.data, safe=False)
+        # 'safe=False' for objects serialization
+ 
+    elif request.method == 'POST':
+        date_data = JSONParser().parse(request)
+        date_serializer = DateSerializer(data=date_data)
+        if date_serializer.is_valid():
+            date_serializer.save()
+            return JsonResponse(date_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(date_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#GET / PUT / DELETE date by ‘numero date’
+@api_view(['GET', 'PUT', 'DELETE'])
+def date_detail(request, pk):
+    try: 
+        date = Date.objects.get(pk=pk) 
+    except Date.DoesNotExist: 
+        return JsonResponse({'message': 'date does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    if request.method == 'GET': 
+        date_serializer = DateSerializer(date) 
+        return JsonResponse(date_serializer.data) 
+ 
+    elif request.method == 'PUT': 
+        date_data = JSONParser().parse(request) 
+        date_serializer = DateSerializer(date, data=date_data) 
+        if date_serializer.is_valid(): 
+            date_serializer.save() 
+            return JsonResponse(date_serializer.data) 
+        return JsonResponse(date_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+ 
+    elif request.method == 'DELETE': 
+        date.delete() 
+        return JsonResponse({'message': 'date was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
+#Gratification
+@api_view(['GET', 'POST'])
+def gratification_list(request):
+    if request.method == 'GET':
+        gratification = Gratification.objects.all()
+        
+        title = request.query_params.get('title', None)
+        if title is not None:
+            gratification = gratification.filter(title__icontains=title)
+        
+        gratification_serializer = GratificationSerializer(gratification, many=True)
+        return JsonResponse(gratification_serializer.data, safe=False)
+        # 'safe=False' for objects serialization
+ 
+    elif request.method == 'POST':
+        gratification_data = JSONParser().parse(request)
+        gratification_serializer = GratificationSerializer(data=gratification_data)
+        if gratification_serializer.is_valid():
+            gratification_serializer.save()
+            return JsonResponse(gratification_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(gratification_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#GET / PUT / DELETE gratification by ‘numero gratification’
+@api_view(['GET', 'PUT', 'DELETE'])
+def gratification_detail(request, pk):
+    try: 
+        gratification = Gratification.objects.get(pk=pk) 
+    except Gratification.DoesNotExist: 
+        return JsonResponse({'message': 'gratification does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    if request.method == 'GET': 
+        gratification_serializer = GratificationSerializer(gratification) 
+        return JsonResponse(gratification_serializer.data) 
+ 
+    elif request.method == 'PUT': 
+        gratification_data = JSONParser().parse(request) 
+        gratification_serializer = GratificationSerializer(gratification, data=gratification_data) 
+        if gratification_serializer.is_valid(): 
+            gratification_serializer.save() 
+            return JsonResponse(gratification_serializer.data) 
+        return JsonResponse(gratification_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+ 
+    elif request.method == 'DELETE': 
+        gratification.delete() 
+        return JsonResponse({'message': 'gratification was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
+#Stage
+@api_view(['GET', 'POST'])
+def stage_list(request):
+    if request.method == 'GET':
+        stage = Stage.objects.all()
+        
+        title = request.query_params.get('title', None)
+        if title is not None:
+            stage = stage.filter(title__icontains=title)
+        
+        stage_serializer = StageSerializer(stage, many=True)
+        return JsonResponse(stage_serializer.data, safe=False)
+        # 'safe=False' for objects serialization
+ 
+    elif request.method == 'POST':
+        stage_data = JSONParser().parse(request)
+        stage_serializer = StageSerializer(data=stage_data)
+        if stage_serializer.is_valid():
+            stage_serializer.save()
+            return JsonResponse(stage_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(stage_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#GET / PUT / DELETE stage by ‘numero stage’
+@api_view(['GET', 'PUT', 'DELETE'])
+def stage_detail(request, pk):
+    try: 
+        stage = Stage.objects.get(pk=pk) 
+    except Stage.DoesNotExist: 
+        return JsonResponse({'message': 'stage does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    if request.method == 'GET': 
+        stage_serializer = StageSerializer(stage) 
+        return JsonResponse(stage_serializer.data) 
+ 
+    elif request.method == 'PUT': 
+        stage_data = JSONParser().parse(request) 
+        stage_serializer = StageSerializer(stage, data=stage_data) 
+        if stage_serializer.is_valid(): 
+            stage_serializer.save() 
+            return JsonResponse(stage_serializer.data) 
+        return JsonResponse(stage_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+ 
+    elif request.method == 'DELETE': 
+        stage.delete() 
+        return JsonResponse({'message': 'stage was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+
+
+#Tuteur
+@api_view(['GET', 'POST'])
+def tuteur_list(request):
+    if request.method == 'GET':
+        tuteur = Tuteur.objects.all()
+        
+        title = request.query_params.get('title', None)
+        if title is not None:
+            tuteur = tuteur.filter(title__icontains=title)
+        
+        tuteur_serializer = TuteurSerializer(tuteur, many=True)
+        return JsonResponse(tuteur_serializer.data, safe=False)
+        # 'safe=False' for objects serialization
+ 
+    elif request.method == 'POST':
+        tuteur_data = JSONParser().parse(request)
+        tuteur_serializer = TuteurSerializer(data=tuteur_data)
+        if tuteur_serializer.is_valid():
+            tuteur_serializer.save()
+            return JsonResponse(tuteur_serializer.data, status=status.HTTP_201_CREATED) 
+        return JsonResponse(tuteur_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#GET / PUT / DELETE tuteur by ‘numero tuteur’
+@api_view(['GET', 'PUT', 'DELETE'])
+def tuteur_detail(request, pk):
+    try: 
+        tuteur = Tuteur.objects.get(pk=pk) 
+    except Tuteur.DoesNotExist: 
+        return JsonResponse({'message': 'tuteur does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+ 
+    if request.method == 'GET': 
+        tuteur_serializer = TuteurSerializer(tuteur) 
+        return JsonResponse(tuteur_serializer.data) 
+ 
+    elif request.method == 'PUT': 
+        tuteur_data = JSONParser().parse(request) 
+        tuteur_serializer = TuteurSerializer(tuteur, data=tuteur_data) 
+        if tuteur_serializer.is_valid(): 
+            tuteur_serializer.save() 
+            return JsonResponse(tuteur_serializer.data) 
+        return JsonResponse(tuteur_serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+ 
+    elif request.method == 'DELETE': 
+        tuteur.delete() 
+        return JsonResponse({'message': 'tuteur was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)

@@ -3,12 +3,23 @@ from django.db import models
 from django.core.validators import MinLengthValidator
 
 # Create your models here.
+class Adresse(models.Model):
+    adresse_id = models.AutoField(primary_key=True)
+    adr = models.CharField(max_length=64)
+    codePostal = models.CharField(max_length=10)
+    ville = models.CharField(max_length=64)
+    pays = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.adr}, {self.codePostal} {self.ville}, {self.pays}"
+
 class Etudiant(models.Model):
     IDetudiant = models.CharField(primary_key=True, max_length=8, validators=[MinLengthValidator(8)])
     nom = models.CharField(max_length=64)
     prenom = models.CharField(max_length=64)
     numTeleph = models.IntegerField()
     email = models.EmailField()
+    adresse_etud = models.OneToOneField(Adresse, on_delete=models.CASCADE, related_name="adresse_etud")
     SS_CHOICES = (
     ('Ayant Droit', 'Ayant Droit'),
     ('Etudiant', 'Etudiant'),
@@ -30,24 +41,14 @@ class Fiche(models.Model):
     def __str__(self):
         return f"{self.noFiche} : {self.etudiant}"
 
-class Adresse(models.Model):
-    adresse_id = models.AutoField(primary_key=True)
-    adr = models.CharField(max_length=64)
-    codePostal = models.CharField(max_length=10)
-    ville = models.CharField(max_length=64)
-    pays = models.CharField(max_length=64)
-
-    def __str__(self):
-        return f"{self.ville}, {self.pays}"
-
 class Etablissement(models.Model):
     etab_id = models.AutoField(primary_key=True)
     raisonSociale = models.CharField(max_length=64)
     representationLegal = models.CharField(max_length=64)
     fonction = models.CharField(max_length=64)
     adresse = models.ForeignKey(Adresse, on_delete=models.CASCADE, related_name="adresse")
-    noSiret = models.CharField(max_length=14, validators=[MinLengthValidator(14)], null=True)
-    codeAPE = models.CharField(max_length=5, null=True)
+    noSiret = models.CharField(max_length=14, validators=[MinLengthValidator(14)], null=True, blank=True)
+    codeAPE = models.CharField(max_length=5, null=True, blank=True)
     domaineDAct = models.CharField(max_length=64)
     effectif = models.IntegerField()
 
@@ -78,8 +79,8 @@ class Date(models.Model):
     date_fin = models.DateField()
     tempsPlein = models.BooleanField()
     interuption = models.BooleanField()
-    date_interuption_debut = models.DateField(null=True)
-    date_interuption_fin = models.DateField(null=True)
+    date_interuption_debut = models.DateField(null=True, blank=True)
+    date_interuption_fin = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"Date ID  : {self.date_id}"
@@ -97,24 +98,7 @@ class Gratification(models.Model):
     def __str__(self):
         return f"Gratification  : {self.montant}, type de versement : {self.versement}"
 
-class Stage(models.Model):
-    stage_id = models.AutoField(primary_key=True)
-    titre = models.CharField(max_length=64)
-    nbHeure = models.IntegerField()
-    gratification = models.BooleanField()
-    gratification_detail = models.OneToOneField(Gratification, on_delete=models.CASCADE, related_name="gratification_stage")
-    confidentialite = models.BooleanField()
-    date = models.OneToOneField(Date, on_delete=models.CASCADE, related_name="date_stage")
-    description = models.TextField()
-    objectifs = models.TextField()
-    taches = models.TextField()
-    detail = models.TextField()
-    IDetudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name="stage_etudiant")
-
-    def __str__(self):
-        return f"Stage  : {self.titre} du {self.IDetudiant}"
-
-class Tuteurs(models.Model):
+class Tuteur(models.Model):
     tuteur_id = models.AutoField(primary_key=True)
     nom = models.CharField(max_length=64)
     prenom = models.CharField(max_length=64)
@@ -128,8 +112,26 @@ class Tuteurs(models.Model):
     ('Inexistante', 'Inexistante'))
     disponibilite = models.CharField(max_length=30, choices = dispo_CHOICES)
     adresse_Tuteur =  models.ForeignKey(Adresse, on_delete=models.CASCADE, related_name="adresse_Tuteur")
-    stage = models.OneToOneField(Stage, on_delete=models.CASCADE, related_name="stage")
     etab = models.OneToOneField(Etablissement, on_delete=models.CASCADE, related_name="etab_Tuteur")
 
     def __str__(self):
-        return f"Tuteur  : {self.nom} {self.prenom} pour stage {self.stage}"
+        return f"Tuteur  : {self.nom} {self.prenom} pour etablissement {self.etab}"
+
+class Stage(models.Model):
+    stage_id = models.AutoField(primary_key=True)
+    titre = models.CharField(max_length=64)
+    nbHeure = models.IntegerField()
+    gratification = models.BooleanField()
+    gratification_detail = models.OneToOneField(Gratification, on_delete=models.CASCADE, related_name="gratification_stage", null=True, blank=True)
+    confidentialite = models.BooleanField()
+    date = models.OneToOneField(Date, on_delete=models.CASCADE, related_name="date_stage")
+    description = models.TextField()
+    objectifs = models.TextField()
+    taches = models.TextField()
+    detail = models.TextField()
+    IDetudiant = models.ForeignKey(Etudiant, on_delete=models.CASCADE, related_name="stage_etudiant")
+    tuteur = models.ForeignKey(Tuteur, on_delete=models.CASCADE, related_name="tuteur_stage")
+
+    def __str__(self):
+        return f"Stage  : {self.titre} du {self.IDetudiant}"
+
