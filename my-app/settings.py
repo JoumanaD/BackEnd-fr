@@ -55,7 +55,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'rest_framework',
     #Cross-Origin Resource Sharing is a protocol that enables scripts running on a browser client to interact with resources from a different origin.
-    'corsheaders'
+    'corsheaders',
    
 ]
 
